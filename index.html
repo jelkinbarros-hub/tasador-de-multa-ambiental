@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasador de Multas Ambientales | Corpoguajira</title>
+    <meta name="description" content="Aplicación web para la tasación técnica de multas del procedimiento administrativo sancionatorio ambiental bajo Ley 1333 de 2009, Resolución 2086 de 2010 y Ley 2387 de 2024 para Corpoguajira.">
+    <!-- Google Fonts: Outfit (headings) & Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Uncaught error catcher banner -->
+    <script>
+        window.addEventListener('error', function(event) {
+            const errorDiv = document.getElementById('debug-error-banner');
+            if (errorDiv) {
+                errorDiv.style.display = 'block';
+                errorDiv.innerHTML += '<div style="margin-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 4px;">' + event.message + ' (' + event.filename.split('/').pop() + ':' + event.lineno + ')</div>';
+            } else {
+                const div = document.createElement('div');
+                div.id = 'debug-error-banner';
+                div.style.position = 'fixed';
+                div.style.top = '10px';
+                div.style.left = '10px';
+                div.style.right = '10px';
+                div.style.background = '#f8d7da';
+                div.style.color = '#721c24';
+                div.style.padding = '15px';
+                div.style.border = '1px solid #f5c6cb';
+                div.style.borderRadius = '8px';
+                div.style.zIndex = '999999';
+                div.style.fontFamily = 'monospace';
+                div.style.fontSize = '12px';
+                div.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                div.innerHTML = '<h5 style="margin: 0 0 8px 0; color: #721c24;">⚠️ Error en Navegador detectado (F12):</h5><div style="margin-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 4px;">' + event.message + ' (' + event.filename.split('/').pop() + ':' + event.lineno + ')</div>';
+                
+                // Wait for body to be ready to append
+                if (document.body) {
+                    document.body.appendChild(div);
+                } else {
+                    window.addEventListener('DOMContentLoaded', () => document.body.appendChild(div));
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 100 100" width="48" height="48" class="eco-logo">
+                        <!-- Stylized green leaf and Guajira sun graphic -->
+                        <path d="M50 95 C 20 70, 10 40, 50 5 C 90 40, 80 70, 50 95 Z" fill="url(#leafGradient)" />
+                        <circle cx="50" cy="50" r="15" fill="none" stroke="#E0A96D" stroke-width="4" stroke-dasharray="10 5" class="sun-orbit" />
+                        <circle cx="50" cy="50" r="8" fill="#E0A96D" />
+                        <defs>
+                            <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#198754" />
+                                <stop offset="100%" stop-color="#0F5132" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>Corpoguajira</h1>
+                    <span>Tasador Sancionatorio</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" id="nav-calc" onclick="switchTab('tab-calc')">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-label">Tasador de Multas</span>
+                </button>
+                <button class="nav-item" id="nav-ai" onclick="switchTab('tab-ai')">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-label">Asistente de IA</span>
+                </button>
+                <button class="nav-item" id="nav-norm" onclick="switchTab('tab-norm')">
+                    <span class="nav-icon">⚖️</span>
+                    <span class="nav-label">Normoteca Ambiental</span>
+                </button>
+                <button class="nav-item" id="nav-guide" onclick="switchTab('tab-guide')">
+                    <span class="nav-icon">🌵</span>
+                    <span class="nav-label">Guía Corpoguajira</span>
+                </button>
+                <button class="nav-item" id="nav-history" onclick="switchTab('tab-history')">
+                    <span class="nav-icon">📂</span>
+                    <span class="nav-label">Historial</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>Versión 2.0 (Ley 2387/24)</p>
+                <p class="footer-note">Para uso interno de funcionarios</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Controls bar (Global params) -->
+            <header class="top-bar">
+                <div class="header-title">
+                    <h2 id="current-tab-title">Tasador de Multas Ambientales</h2>
+                    <p class="subtitle" id="current-tab-desc">Cálculo de sanciones según la Resolución 2086 de 2010 y Ley 2387 de 2024</p>
+                </div>
+                <div class="global-params">
+                    <div class="param-group">
+                        <label for="theme-select">Tema Visual</label>
+                        <select id="theme-select" onchange="changeTheme()">
+                            <option value="corpoguajira">Tema Corpoguajira</option>
+                            <option value="dark">Tema Oscuro Premium</option>
+                            <option value="desierto">Desierto Guajiro</option>
+                        </select>
+                    </div>
+                    <div class="param-group">
+                        <label for="preset-year">Año de Resolución (SMMLV - Ley 2387)</label>
+                        <select id="preset-year" onchange="updateValuesFromYear()">
+                            <option value="2026">2026 (Proyectado)</option>
+                            <option value="2025">2025 (Estimado)</option>
+                            <option value="2024" selected>2024 (Vigente)</option>
+                        </select>
+                    </div>
+                    <div class="param-group">
+                        <label for="val-smmlv">SMMLV (COP)</label>
+                        <input type="number" id="val-smmlv" value="1300000" onchange="recalculateEverything()">
+                    </div>
+                    <div class="param-group">
+                        <label for="val-uvt">UVT (COP)</label>
+                        <input type="number" id="val-uvt" value="47065" onchange="recalculateEverything()">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Active Tab Contents -->
+            <div class="content-body">
+                
+                <!-- TAB: CALCULATOR WIZARD -->
+                <section class="tab-pane active" id="tab-calc">
+                    <!-- Progress Bar -->
+                    <div class="wizard-progress">
+                        <div class="progress-bar-fill" id="wizard-progress-bar"></div>
+                        <div class="step-indicator active" id="step-ind-1"><span>1</span><label>Infractor</label></div>
+                        <div class="step-indicator" id="step-ind-2"><span>2</span><label>Temporalidad</label></div>
+                        <div class="step-indicator" id="step-ind-3"><span>3</span><label>Gravedad</label></div>
+                        <div class="step-indicator" id="step-ind-4"><span>4</span><label>Beneficio</label></div>
+                        <div class="step-indicator" id="step-ind-5"><span>5</span><label>Agravantes</label></div>
+                        <div class="step-indicator" id="step-ind-6"><span>6</span><label>Costos/Leyes</label></div>
+                        <div class="step-indicator" id="step-ind-7"><span>7</span><label>Liquidación</label></div>
+                    </div>
+
+                    <!-- Wizard Form Container -->
+                    <div class="wizard-card card">
+                        <!-- STEP 1: INFRACTOR (Cs) -->
+                        <div class="wizard-step" id="step-1">
+                            <h3>Paso 1: Identificación y Capacidad Socioeconómica (Cs)</h3>
+                            <p class="step-description">Defina la naturaleza jurídica del presunto infractor para calcular el factor de ajuste de capacidad socioeconómica ($Cs$).</p>
+                            
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="case-expediente">Número de Expediente Sancionatorio</label>
+                                    <input type="text" id="case-expediente" placeholder="Ej. EXP-034-2026 / CO-02-098">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="case-infractor">Nombre / Razón Social del Infractor</label>
+                                    <input type="text" id="case-infractor" placeholder="Ej. Minera del Norte S.A.S o Juan Pérez">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="infractor-type">Tipo de Infractor</label>
+                                    <select id="infractor-type" onchange="toggleInfractorFields()">
+                                        <option value="juridica">Persona Jurídica (Empresa/Entidad)</option>
+                                        <option value="natural">Persona Natural (Ciudadano)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Persona Jurídica Fields -->
+                                <div class="form-group" id="fields-juridica">
+                                    <label for="empresa-size">Tamaño de la Empresa (Resolución 2086)</label>
+                                    <select id="empresa-size" onchange="updateCsValue()">
+                                        <option value="micro">Microempresa (Cs = 0.25)</option>
+                                        <option value="pequena">Pequeña Empresa (Cs = 0.50)</option>
+                                        <option value="mediana">Mediana Empresa (Cs = 0.75)</option>
+                                        <option value="grande">Gran Empresa (Cs = 1.00)</option>
+                                        <option value="publica">Entidad Pública / Estatal (Cs = 1.00)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Persona Natural Fields -->
+                                <div class="form-group hidden" id="fields-natural">
+                                    <label for="sisben-level">Nivel de SISBEN (Personas Naturales)</label>
+                                    <select id="sisben-level" onchange="updateCsValue()">
+                                        <option value="nivel1">Nivel 1 (Cs = 0.01)</option>
+                                        <option value="nivel2">Nivel 2 (Cs = 0.02)</option>
+                                        <option value="nivel3">Nivel 3 (Cs = 0.03)</option>
+                                        <option value="nivel4">Nivel 4 (Cs = 0.04)</option>
+                                        <option value="nivel5">Nivel 5 (Cs = 0.05)</option>
+                                        <option value="nivel6">Nivel 6 / Sin Sisben (Cs = 0.06)</option>
+                                        <option value="indigena">Comunidad Indígena / Vulnerable (Cs = 0.01)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cs-calculated">Valor del Factor de Capacidad Socioeconómica ($Cs$)</label>
+                                    <input type="number" id="cs-calculated" value="0.25" step="0.01" min="0.01" max="1.00">
+                                    <span class="field-hint">Puede ajustarse manualmente según criterios excepcionales del comité jurídico.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: TEMPORALIDAD (alpha) -->
+                        <div class="wizard-step hidden" id="step-2">
+                            <h3>Paso 2: Factor de Temporalidad ($\alpha$)</h3>
+                            <p class="step-description">Ingrese los días de duración de la infracción ambiental. El factor $\alpha$ pondera la duración de forma lineal hasta un máximo de 365 días.</p>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="infraction-days">Duración de la Infracción (en Días)</label>
+                                    <input type="number" id="infraction-days" value="1" min="1" oninput="calculateAlphaValue()">
+                                    <span class="field-hint">Si es un hecho instantáneo o no se puede probar duración, ingrese 1 día.</span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="alpha-calculated">Valor Calculado de Temporalidad ($\alpha$)</label>
+                                    <input type="number" id="alpha-calculated" value="1.0000" readonly>
+                                    <span class="field-hint">Fórmula: $\alpha = 1 + \frac{3}{364} \times (d - 1)$. Rango: 1.0 a 4.0.</span>
+                                </div>
+                                
+                                <div class="info-card full-width">
+                                    <h4>Explicación de la Temporalidad</h4>
+                                    <p>La Resolución 2086 establece que la temporalidad busca ponderar la continuidad en el tiempo del impacto. Si la conducta dura 365 días o más, el valor alcanza su límite máximo de 4.0. Para cualquier cantidad de días superior, se mantiene el tope en 4.0.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: GRAVEDAD (i) -->
+                        <div class="wizard-step hidden" id="step-3">
+                            <h3>Paso 3: Gravedad de la Infracción ($i$)</h3>
+                            <p class="step-description">Evalúe el impacto ambiental real (Afectación) o potencial (Riesgo) derivado de la infracción para calcular la base de gravedad.</p>
+                            
+                            <div class="severity-mode-selector">
+                                <label class="mode-option card active">
+                                    <input type="radio" name="severity-mode" value="afectacion" checked onchange="toggleSeverityMode()">
+                                    <div class="mode-text">
+                                        <strong>Daño Real (Afectación)</strong>
+                                        <span>Infracciones que generaron una afectación material demostrada sobre el recurso hídrico, suelo, aire, fauna o flora.</span>
+                                    </div>
+                                </label>
+                                <label class="mode-option card">
+                                    <input type="radio" name="severity-mode" value="riesgo" onchange="toggleSeverityMode()">
+                                    <div class="mode-text">
+                                        <strong>Daño Potencial (Riesgo)</strong>
+                                        <span>Infracciones de carácter formal o preventivo que generaron un riesgo sobre los recursos sin llegar a materializarse en daño.</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- SUB-FORM: DAÑO REAL (AFECTACIÓN) -->
+                            <div id="severity-afectacion-section">
+                                <h4 class="section-subtitle">Evaluación de Importancia de Afectación ($I = 3IN + 2EX + PE + RV + MC$)</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="attr-in">Intensidad (IN) - Grado de incidencia de la acción</label>
+                                        <select id="attr-in" onchange="calculateIValue()">
+                                            <option value="1">Muy baja / Baja (0 - 33% de desviación del estándar) [Puntos: 1]</option>
+                                            <option value="4">Media (34% - 66% de desviación del estándar) [Puntos: 4]</option>
+                                            <option value="8">Alta (67% - 99% de desviación del estándar) [Puntos: 8]</option>
+                                            <option value="12">Muy alta / Crítica (exceso del 100% o daño crítico) [Puntos: 12]</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attr-ex">Extensión (EX) - Área de influencia del impacto</label>
+                                        <select id="attr-ex" onchange="calculateIValue()">
+                                            <option value="1">Localizada e inferior a 1 hectárea [Puntos: 1]</option>
+                                            <option value="4">Regional o entre 1 y 5 hectáreas [Puntos: 4]</option>
+                                            <option value="12">Generalizada o superior a 5 hectáreas [Puntos: 12]</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attr-pe">Persistencia (PE) - Permanencia del efecto en el tiempo</label>
+                                        <select id="attr-pe" onchange="calculateIValue()">
+                                            <option value="1">Efecto fugaz o menor a 6 meses [Puntos: 1]</option>
+                                            <option value="3">Persistente o entre 6 meses y 5 años [Puntos: 3]</option>
+                                            <option value="5">Permanente o superior a 5 años [Puntos: 5]</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attr-rv">Reversibilidad (RV) - Retorno natural a condiciones iniciales</label>
+                                        <select id="attr-rv" onchange="calculateIValue()">
+                                            <option value="1">Reversible a corto plazo (menos de 1 año) [Puntos: 1]</option>
+                                            <option value="3">Reversible a mediano/largo plazo (1 a 10 años) [Puntos: 3]</option>
+                                            <option value="5">Irreversible por medios naturales (más de 10 años) [Puntos: 5]</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attr-mc">Recuperabilidad (MC) - Reparabilidad por gestión humana</label>
+                                        <select id="attr-mc" onchange="calculateIValue()">
+                                            <option value="1">Recuperable a corto plazo (menos de 6 meses) [Puntos: 1]</option>
+                                            <option value="3">Recuperable a mediano plazo (6 meses a 5 años) [Puntos: 3]</option>
+                                            <option value="10">Irrecuperable (imposible de reparar) [Puntos: 10]</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="summary-box full-width">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <span class="value" id="afectacion-I-score">8</span>
+                                                <label>Importancia de Afectación ($I$)</label>
+                                            </div>
+                                            <div class="metric">
+                                                <span class="value badge-level" id="afectacion-I-level">Irrelevante</span>
+                                                <label>Calificación de Gravedad</label>
+                                            </div>
+                                            <div class="metric">
+                                                <span class="value" id="afectacion-i-smmlv">176.48</span>
+                                                <label>Gravedad en SMMLV ($i$)</label>
+                                            </div>
+                                        </div>
+                                        <p class="formula-notice">Fórmula de Gravedad: $i = 22.06 \times I \text{ SMMLV}$</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SUB-FORM: DAÑO POTENCIAL (RIESGO) -->
+                            <div id="severity-riesgo-section" class="hidden">
+                                <h4 class="section-subtitle">Evaluación de Importancia del Riesgo ($r = o \times m$)</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="attr-o">Probabilidad de Ocurrencia ($o$)</label>
+                                        <select id="attr-o" onchange="calculateRValue()">
+                                            <option value="0.2">Muy baja (0.2)</option>
+                                            <option value="0.4">Baja (0.4)</option>
+                                            <option value="0.6">Media (0.6)</option>
+                                            <option value="0.8">Alta (0.8)</option>
+                                            <option value="1.0">Muy alta (1.0)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="attr-m">Magnitud Potencial del Daño ($m$)</label>
+                                        <select id="attr-m" onchange="calculateRValue()">
+                                            <option value="20">Irrelevante (20)</option>
+                                            <option value="35">Leve (35)</option>
+                                            <option value="50">Moderado (50)</option>
+                                            <option value="65">Severo (65)</option>
+                                            <option value="80">Crítico (80)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="summary-box full-width">
+                                        <div class="metric-group">
+                                            <div class="metric">
+                                                <span class="value" id="riesgo-r-score">4</span>
+                                                <label>Importancia de Riesgo ($r$)</label>
+                                            </div>
+                                            <div class="metric">
+                                                <span class="value" id="riesgo-i-smmlv">44.12</span>
+                                                <label>Gravedad en SMMLV ($i$)</label>
+                                            </div>
+                                        </div>
+                                        <p class="formula-notice">Fórmula de Riesgo: $i = 11.03 \times r \text{ SMMLV}$</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: BENEFICIO ILÍCITO (B) -->
+                        <div class="wizard-step hidden" id="step-4">
+                            <h3>Paso 4: Beneficio Ilícito ($B$)</h3>
+                            <p class="step-description">Calcule el beneficio económico directo o indirecto obtenido por el presunto infractor al omitir el cumplimiento ambiental.</p>
+                            
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" id="has-beneficio" onchange="toggleBeneficioFields()">
+                                        <span class="checkmark"></span>
+                                        <strong>¿Existe beneficio económico ilícito determinado?</strong>
+                                    </label>
+                                </div>
+
+                                <div class="form-group disabled-field" id="beneficio-y-group">
+                                    <label for="beneficio-y">Ingresos Directos + Costos Evitados + Ahorros ($Y$ en COP)</label>
+                                    <input type="number" id="beneficio-y" value="0" min="0" oninput="calculateBeneficioValue()" disabled>
+                                    <span class="field-hint">Inversión no realizada en infraestructura ambiental, licencias no pagadas, etc.</span>
+                                </div>
+
+                                <div class="form-group disabled-field" id="beneficio-p-group">
+                                    <label for="beneficio-p">Probabilidad de Detección de la Conducta ($p$)</label>
+                                    <select id="beneficio-p" onchange="calculateBeneficioValue()" disabled>
+                                        <option value="0.50">Alta (p = 0.50) [Factor: 1.0]</option>
+                                        <option value="0.45">Media (p = 0.45) [Factor: 1.22]</option>
+                                        <option value="0.40">Baja (p = 0.40) [Factor: 1.5]</option>
+                                    </select>
+                                    <span class="field-hint">Capacidad institucional para identificar la infracción.</span>
+                                </div>
+                                
+                                <div class="summary-box full-width">
+                                    <div class="metric-group">
+                                        <div class="metric">
+                                            <span class="value" id="beneficio-calculated-cop">$0</span>
+                                            <label>Beneficio Ilícito en COP ($B$)</label>
+                                        </div>
+                                        <div class="metric">
+                                            <span class="value" id="beneficio-calculated-smmlv">0.00</span>
+                                            <label>Beneficio Ilícito en SMMLV</label>
+                                        </div>
+                                    </div>
+                                    <p class="formula-notice">Fórmula de Beneficio: $B = Y \times \frac{1 - p}{p}$</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 5: AGRAVANTES Y ATENUANTES (A) -->
+                        <div class="wizard-step hidden" id="step-5">
+                            <h3>Paso 5: Circunstancias Agravantes y Atenuantes ($A$)</h3>
+                            <p class="step-description">Marque las causales presentes de los Artículos 6 y 7 de la Ley 1333 de 2009. Los coeficientes se sumarán para dar el valor de $A$. Puede ajustar libremente los pesos individuales.</p>
+                            
+                            <div class="factors-split">
+                                <!-- Mitigation Factors -->
+                                <div class="factors-column">
+                                    <h4>Mitigantes (Atenuantes - Art. 6)</h4>
+                                    <div class="factor-list" id="mitigantes-list">
+                                        <!-- Will be filled in js -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Aggravating Factors -->
+                                <div class="factors-column">
+                                    <h4>Agravantes (Art. 7)</h4>
+                                    <div class="factor-list" id="agravantes-list">
+                                        <!-- Will be filled in js -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-box">
+                                <div class="metric-group">
+                                    <div class="metric">
+                                        <span class="value" id="total-A-factor">0.00</span>
+                                        <label>Coeficiente Final de Ajuste ($A$)</label>
+                                    </div>
+                                    <div class="metric">
+                                        <span class="value" id="total-A-percentage">0%</span>
+                                        <label>Ajuste de Gravedad Base ($1 + A$)</label>
+                                    </div>
+                                </div>
+                                <span class="field-hint text-center block">Nota: Si la sumatoria de agravantes y atenuantes es menor a -1, el factor $(1+A)$ no puede ser inferior a 0 por principios lógicos.</span>
+                            </div>
+                        </div>
+
+                        <!-- STEP 6: COSTOS Y LEYES SANCIONATORIAS -->
+                        <div class="wizard-step hidden" id="step-6">
+                            <h3>Paso 6: Costos Asociados y Régimen Legal Aplicable</h3>
+                            <p class="step-description">Defina costos de la investigación, el régimen de topes legales a aplicar y los incentivos de la Ley 2387 de 2024.</p>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="costos-asociados-cop">Costos Asociados ($Ca$ en COP)</label>
+                                    <input type="number" id="costos-asociados-cop" value="0" min="0" oninput="calculateCostosAsociadosSmmlv()">
+                                    <span class="field-hint">Estudios técnicos, viáticos, análisis de laboratorios externos.</span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="costos-asociados-smmlv">Costos Asociados en SMMLV</label>
+                                    <input type="number" id="costos-asociados-smmlv" value="0.00" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="law-regimen">Tope Máximo Legal de Multa</label>
+                                    <select id="law-regimen" onchange="recalculateEverything()">
+                                        <option value="ley2387" selected>Ley 2387 de 2024 (Hasta 100.000 SMMLV / UVT Equiv.)</option>
+                                        <option value="ley1333">Ley 1333 de 2009 (Hasta 5.000 SMMLV)</option>
+                                    </select>
+                                    <span class="field-hint">Aplica según la fecha de comisión de los hechos (principio de favorabilidad).</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ley2387-confesion">Reducción por Confesión (Ley 2387 de 2024)</label>
+                                    <select id="ley2387-confesion" onchange="recalculateEverything()">
+                                        <option value="ninguna" selected>Sin Confesión / No aplica descuento</option>
+                                        <option value="antes_proceso">Confesión ANTES del inicio del proceso (-30%)</option>
+                                        <option value="antes_cargos">Confesión ANTES del auto de cargos (-15%)</option>
+                                    </select>
+                                    <span class="field-hint">Incentivos para la agilización procesal.</span>
+                                </div>
+
+                                <div class="form-group" style="justify-content: flex-end; padding-bottom: 0.5rem; grid-column: span 2;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 500; color: var(--text-main);">
+                                        <input type="checkbox" id="chk-flagrancia" onchange="toggleFlagrancia()" style="width: 16px; height: 16px;">
+                                        ¿Infracción capturada en Flagrancia? (Deshabilita descuento por confesión)
+                                    </label>
+                                    <span class="field-hint" id="flagrancia-hint" style="color: var(--danger); display: none; font-size: 0.75rem; margin-top: 0.25rem;">Según el Art. 11 de la Ley 2387, los beneficios de confesión no aplican en flagrancia.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- STEP 7: LIQUIDACIÓN DE MULTA (RESULTADO) -->
+                        <div class="wizard-step hidden" id="step-7">
+                            <h3>Paso 7: Liquidación Final de la Multa Ambiental</h3>
+                            <p class="step-description">Revise los resultados de la tasación para el expediente sancionatorio de Corpoguajira.</p>
+                            
+                            <div class="results-grid">
+                                <!-- Liquidacion Panel -->
+                                <div class="liquidacion-panel card">
+                                    <div class="main-fine-display">
+                                        <span class="fine-label">MULTA FINAL LIQUIDADA</span>
+                                        <h2 id="final-fine-cop">$ 0</h2>
+                                        <div class="alternative-units">
+                                            <span class="unit-badge" id="final-fine-smmlv">0.00 SMMLV</span>
+                                            <span class="unit-badge" id="final-fine-uvt">0.00 UVT</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="calculation-detail-list">
+                                        <div class="detail-item">
+                                            <span>Beneficio Ilícito ($B$):</span>
+                                            <strong id="res-val-B">$0</strong>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Temporalidad ($\alpha$):</span>
+                                            <strong id="res-val-alpha">1.00</strong>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Gravedad Afectación ($i$):</span>
+                                            <strong id="res-val-i">0.00 SMMLV</strong>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Factor Agravante ($1 + A$):</span>
+                                            <strong id="res-val-A">1.00</strong>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Costos Asociados ($Ca$):</span>
+                                            <strong id="res-val-Ca">$0</strong>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span>Capacidad de Pago ($Cs$):</span>
+                                            <strong id="res-val-Cs">0.25</strong>
+                                        </div>
+                                        <div class="detail-item" id="res-row-discount" style="color: #E0A96D; display: none;">
+                                            <span>Descuento por Confesión:</span>
+                                            <strong id="res-val-discount">-0%</strong>
+                                        </div>
+                                        <div class="detail-item" id="res-row-tope" style="color: #ea868f; display: none;">
+                                            <span>Ajuste por Tope Máximo Legal:</span>
+                                            <strong>Reducido al límite legal</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Graphical breakdown -->
+                                <div class="chart-panel card">
+                                    <h4>Distribución de la Multa</h4>
+                                    <div class="svg-chart-container" id="svg-chart-container">
+                                        <!-- Rendered dynamically in JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SANCIONES ADICIONALES Y TRABAJO COMUNITARIO -->
+                            <div class="sanciones-adicionales-card card" style="margin-top: 1.5rem; margin-bottom: 1.5rem; padding: 1.5rem;">
+                                <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Sanción Principal y Acompañamiento (Ley 2387 de 2024 / Decreto 3678)</h4>
+                                <p class="description" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                    Todo acto administrativo que imponga una multa debe detallar si la multa es la sanción principal o si está acompañada por otras sanciones (hasta 2 accesorias). 
+                                    La Ley 2387 de 2024 también habilita la subrogación por trabajo comunitario.
+                                </p>
+                                
+                                <div class="form-grid" style="grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 1rem;">
+                                    <div class="form-group">
+                                        <label for="sancion-principal" style="font-size: 0.8rem;">Sanción Principal</label>
+                                        <select id="sancion-principal" onchange="updateSancionesReporte()" style="padding: 0.5rem; font-size: 0.85rem;">
+                                            <option value="multa" selected>Multa Pecuniaria (Tasada)</option>
+                                            <option value="cierre">Cierre Temporal o Definitivo del Establecimiento</option>
+                                            <option value="revocatoria">Revocatoria de Licencia/Permiso/Concesión</option>
+                                            <option value="demolicion">Demolición de Obra a costa del infractor</option>
+                                            <option value="trabajo_comunitario">Trabajo Comunitario (Subrogación de Multa)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label style="font-size: 0.8rem;">Sanciones Accesorias (Máximo 2)</label>
+                                        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; padding: 0.25rem;">
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" class="chk-accesoria" value="decomiso" onchange="updateSancionesReporte()">
+                                                Decomiso definitivo de especímenes o elementos
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" class="chk-accesoria" value="restitucion" onchange="updateSancionesReporte()">
+                                                Restitución de especímenes de fauna/flora
+                                            </label>
+                                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                <input type="checkbox" class="chk-accesoria" value="cierre_accesorio" onchange="updateSancionesReporte()">
+                                                Cierre temporal del establecimiento/obra
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dynamic Trabajo Comunitario Notice -->
+                                <div id="trabajo-comunitario-aviso" class="info-card" style="background: rgba(10, 92, 54, 0.05); border: 1px solid var(--primary-soft); display: none; padding: 1rem; border-radius: 8px;">
+                                    <strong style="color: var(--primary); font-size: 0.85rem;">💡 Recomendación de Subrogación (Ley 2387):</strong>
+                                    <p style="font-size: 0.75rem; margin-top: 0.25rem; line-height: 1.4; color: var(--text-main);">
+                                        El infractor tiene una capacidad socioeconómica baja (Cs = <span id="aviso-cs-val">0.01</span>). El artículo 21 de la Ley 2387 de 2024 establece que la multa podrá ser reemplazada por Trabajo Comunitario o Asistencia a Cursos de Educación Ambiental cuando las condiciones socioeconómicas del sancionado impidan su pago.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Legal justification textbox -->
+                            <div class="justification-card card">
+                                <h4>Sustento Jurídico Técnico de la Tasación</h4>
+                                <textarea id="legal-justification-text" rows="8" readonly></textarea>
+                                <button class="btn btn-secondary btn-sm" onclick="copyJustification()">Copiar Sustento</button>
+                            </div>
+                            
+                            <!-- Action buttons -->
+                            <div class="step-actions-footer">
+                                <button class="btn btn-primary" onclick="saveCalculationToHistory()">Guardar en Historial</button>
+                                <button class="btn btn-accent" onclick="printReport()">🖨️ Imprimir Reporte Técnico</button>
+                            </div>
+                        </div>
+
+                        <!-- Step navigation buttons -->
+                        <div class="wizard-buttons" id="wizard-navigation-buttons">
+                            <button class="btn btn-secondary" id="btn-prev" onclick="moveWizardStep(-1)" disabled>Anterior</button>
+                            <button class="btn btn-primary" id="btn-next" onclick="moveWizardStep(1)">Siguiente</button>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TAB: NORMOTECA AMBIENTAL -->
+                <section class="tab-pane" id="tab-norm">
+                    <div class="normoteca-container">
+                        <div class="search-bar card">
+                            <input type="text" id="normoteca-search-input" placeholder="Buscar normas, artículos o palabras clave... (Ej. 'Confesión', 'SISBEN', 'Gravedad')" oninput="filterNormoteca()">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                        
+                        <div class="norm-layout">
+                            <aside class="norm-toc card">
+                                <h4>Contenido</h4>
+                                <ul id="norm-toc-list">
+                                    <!-- Dynamic table of contents -->
+                                </ul>
+                            </aside>
+                            
+                            <div class="norm-articles" id="norm-articles-container">
+                                <!-- Dynamic articles -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TAB: GUIA CORPOGUAJIRA -->
+                <section class="tab-pane" id="tab-guide">
+                    <div class="guide-container form-grid">
+                        <div class="guide-card card full-width">
+                            <h2>🌵 Consideraciones Especiales en La Guajira</h2>
+                            <p>El departamento de La Guajira presenta particularidades ecológicas y demográficas de gran trascendencia para el debido proceso administrativo sancionatorio ambiental.</p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>👤 Resguardos y Comunidades Indígenas</h3>
+                            <p>La población indígena, predominantemente la **comunidad Wayuu**, cuenta con un régimen de protección de derechos fundamentales bajo la Constitución y el Convenio 169 de la OIT.</p>
+                            <ul>
+                                <li><strong>Capacidad Socioeconómica (Cs):</strong> En caso de investigados pertenecientes a comunidades indígenas con afectaciones en sus resguardos o modos de vida tradicionales, la metodología recomienda asignar un <strong>Cs de 0.01</strong>.</li>
+                                <li><strong>Consulta Previa:</strong> Todo proyecto o medida que interfiera directamente con comunidades étnicas debe agotar la Consulta Previa. La ausencia de ésta puede viciar de nulidad el proceso.</li>
+                                <li><strong>Enfoque Diferencial:</strong> Los fallos sancionatorios deben ser traducidos o comunicados respetando sus autoridades tradicionales (Apalachis, Püshis) y usos y costumbres.</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>🌳 Ecosistemas Estratégicos de La Guajira</h3>
+                            <p>Ciertas zonas del departamento gozan de una importancia ecológica excepcional, lo cual constituye una circunstancia **agravante** (Art. 7 Numeral 9 de la Ley 1333 de 2009):</p>
+                            <ul>
+                                <li><strong>Bosque Seco Tropical (Bs-T):</strong> Uno de los ecosistemas más amenazados de Colombia. Cualquier deforestación en estas áreas en La Guajira debe calificarse con <em>Intensidad Alta (IN = 8 o 12)</em>.</li>
+                                <li><strong>Áreas Protegidas Nacionales:</strong> Parque Nacional Natural Macuira, Santuario de Fauna y Flora Los Flamencos, Bahía Portete.</li>
+                                <li><strong>Distritos de Manejo Integrado (DMI) Regionales:</strong> Cuenca Alta del Río Camarones, DMI Delta del Río Ranchería, Bañaderos. La infracción en estas zonas incrementa automáticamente el valor de $A$.</li>
+                            </ul>
+                        </div>
+
+                        <div class="card full-width">
+                            <h3>📞 Directorio Interno de Apoyo Jurídico y Técnico</h3>
+                            <table class="guide-table">
+                                <thead>
+                                    <tr>
+                                        <th>Dependencia / Comité</th>
+                                        <th>Responsabilidad en Sancionatorios</th>
+                                        <th>Contacto Interno</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Subdirección de Gestión Ambiental</strong></td>
+                                        <td>Elaboración de Informes Técnicos de Infracción y Cálculo de Daños.</td>
+                                        <td>tecnicosancionatorio@corpoguajira.gov.co</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Oficina Asesora Jurídica</strong></td>
+                                        <td>Formulación de Cargos, Autos de Apertura, Fallos Sancionatorios.</td>
+                                        <td>juridica@corpoguajira.gov.co</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Comité de Multas y Tasación</strong></td>
+                                        <td>Aprobación de la capacidad de pago ($Cs$) y beneficio ilícito ($B$).</td>
+                                        <td>comite.tasacion@corpoguajira.gov.co</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TAB: HISTORY -->
+                <section class="tab-pane" id="tab-history">
+                    <div class="history-container card">
+                        <div class="history-header">
+                            <h3>Tasaciones Guardadas Localmente</h3>
+                            <div class="history-buttons">
+                                <button class="btn btn-secondary btn-sm" onclick="exportHistory()">Exportar JSON</button>
+                                <label for="import-file" class="btn btn-secondary btn-sm" style="cursor: pointer; display: inline-block;">
+                                    Importar JSON
+                                    <input type="file" id="import-file" style="display: none;" onchange="importHistory(event)">
+                                </label>
+                                <button class="btn btn-accent btn-sm" style="background-color: #ea868f;" onclick="clearAllHistory()">Borrar Historial</button>
+                            </div>
+                        </div>
+                        
+                        <div class="history-table-wrapper">
+                            <table class="history-table" id="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Expediente</th>
+                                        <th>Infractor</th>
+                                        <th>Multa (COP)</th>
+                                        <th>SMMLV</th>
+                                        <th>Detalle</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <!-- Dynamic rows -->
+                                    <tr>
+                                        <td colspan="7" class="text-center">No hay registros guardados. Realice una tasación en el Asistente y guárdela.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- TAB: AI ASSISTANT -->
+                <section class="tab-pane" id="tab-ai">
+                    <div class="ai-container">
+                        <!-- Left side: Mode selection and settings -->
+                        <div class="ai-sidebar-panel">
+                            <div class="card ai-settings-card">
+                                <h3>Configuración de la IA</h3>
+                                <p class="description" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">El asistente puede guiarlo mediante preguntas o analizar textos técnicos directamente.</p>
+                                
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label for="gemini-api-key" style="font-size: 0.75rem;">Clave API de Gemini</label>
+                                    <input type="password" id="gemini-api-key" placeholder="AIzaSy..." style="padding: 0.5rem; font-size: 0.85rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-main); outline: none; width: 100%; margin-bottom: 0.5rem;">
+                                    <button class="btn btn-primary btn-sm" onclick="saveApiKey()" style="width: 100%; height: 35px; border-radius: 4px; font-size: 0.8rem;">Guardar Clave API</button>
+                                    <span class="field-hint" style="font-size: 0.65rem; margin-top: 0.25rem; display: block;">Clave por defecto pre-cargada. Puede cambiarla cuando lo desee.</span>
+                                </div>
+
+                                <div class="ai-mode-buttons" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                                    <button class="btn btn-primary btn-sm" id="btn-ai-chat" onclick="switchAiMode('chat')" style="width: 100%;">💬 Entrevista Guiada</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-ai-text" onclick="switchAiMode('text')" style="width: 100%;">📄 Analizar Texto Técnico</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right side: Interaction panel -->
+                        <div class="ai-main-panel card">
+                            <!-- CHAT INTERFACE -->
+                            <div id="ai-chat-interface" class="ai-chat-interface">
+                                <div class="chat-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <h4 style="color: var(--primary);">🤖 Asistente Sancionatorio Virtual</h4>
+                                    <span class="chat-status" id="chat-status" style="font-size: 0.75rem; background: var(--primary-soft); color: var(--primary); padding: 0.2rem 0.6rem; border-radius: 50px;">Entrevista no iniciada</span>
+                                </div>
+                                <div class="chat-messages" id="chat-messages" style="height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-right: 0.5rem; margin-bottom: 1rem;">
+                                    <div class="chat-bubble bot-message" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px 12px 12px 0; align-self: flex-start; max-width: 80%; font-size: 0.9rem;">
+                                        <p>¡Bienvenido al <strong>Asistente de Tasación Inteligente</strong> para Corpoguajira!</p>
+                                        <p style="margin-top: 0.5rem;">Puedo hacerle una serie de preguntas simples para determinar todos los parámetros necesarios para tasar la multa del infractor y transferirlos automáticamente al simulador.</p>
+                                        <button class="btn btn-primary btn-sm" onclick="startAiChat()" style="margin-top: 1rem;">Iniciar Entrevista Guiada</button>
+                                    </div>
+                                </div>
+                                <div class="chat-input-area" id="chat-input-area" style="border-top: 1px solid var(--border-color); padding-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <!-- Dynamic reply buttons will go here -->
+                                </div>
+                            </div>
+                            
+                            <!-- TEXT INTERFACE -->
+                            <div id="ai-text-interface" class="ai-text-interface hidden">
+                                <div class="chat-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                                    <h4 style="color: var(--primary);">📄 Procesamiento de Reportes Técnicos</h4>
+                                </div>
+                                <p class="description" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Pegue a continuación la descripción de los hechos o el informe de infracción. La IA de Gemini leerá el texto e identificará las variables de la multa.</p>
+                                
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <textarea id="ai-text-input" rows="8" placeholder="Escriba o pegue el informe técnico aquí... Ej: 'Se constató que el infractor vertió aguas residuales en el río Ranchería durante 5 días. La empresa es una microempresa...'" style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); padding: 0.75rem; outline: none; font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                                </div>
+                                
+                                <div class="ai-text-actions" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                                    <button class="btn btn-secondary btn-sm" onclick="loadAiSampleText()">Cargar Ejemplo</button>
+                                    <button class="btn btn-primary btn-sm" id="btn-ai-analyze" onclick="analyzeTextWithAI()">🔍 Analizar con IA</button>
+                                </div>
+                                
+                                <div class="ai-analysis-results card hidden" id="ai-analysis-results" style="background: rgba(0,0,0,0.15); border-color: var(--primary-soft); padding: 1.25rem;">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Print Report Template (Hidden in web UI, shown in print) -->
+    <div class="print-only-report" id="print-report-template">
+        <!-- Will be filled in js dynamically before printing -->
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
