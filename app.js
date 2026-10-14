@@ -766,30 +766,30 @@ function renderSVGChart(baseMultaSmmlv, beneficioSmmlv) {
     const svg = `
         <svg viewBox="0 0 200 200" width="100%" height="100%">
             <!-- Pie/Donut Chart -->
-            <circle cx="100" cy="100" r="70" fill="none" stroke="#1e293b" stroke-width="25" />
+            <circle cx="100" cy="100" r="70" fill="none" stroke="var(--border-color)" stroke-width="25" />
             
-            <!-- Base Segment -->
-            <circle cx="100" cy="100" r="70" fill="none" stroke="#10b981" stroke-width="25" 
+            <!-- Base Segment (Verde Corpoguajira) -->
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#008A4B" stroke-width="25" 
                 stroke-dasharray="${(pctBase / 100) * 439.8} 439.8" 
                 transform="rotate(-90 100 100)" />
             
-            <!-- Beneficio Segment -->
-            <circle cx="100" cy="100" r="70" fill="none" stroke="#f59e0b" stroke-width="25" 
+            <!-- Beneficio Segment (Ocre Guajiro) -->
+            <circle cx="100" cy="100" r="70" fill="none" stroke="#F7941D" stroke-width="25" 
                 stroke-dasharray="${(pctBeneficio / 100) * 439.8} 439.8" 
                 stroke-dashoffset="-${(pctBase / 100) * 439.8}" 
                 transform="rotate(-90 100 100)" />
             
             <!-- Center Text -->
-            <text x="100" y="95" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="700" font-size="14" fill="#f8fafc">MULTA</text>
-            <text x="100" y="115" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="800" font-size="16" fill="#10b981">${pctBase.toFixed(0)}%</text>
-            <text x="100" y="130" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="500" font-size="10" fill="#94a3b8">Daño Ambiental</text>
+            <text x="100" y="95" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="700" font-size="14" fill="#008A4B">MULTA</text>
+            <text x="100" y="115" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="800" font-size="16" fill="var(--text-main)">${pctBase.toFixed(0)}%</text>
+            <text x="100" y="130" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="500" font-size="10" fill="var(--text-muted)">Daño Ambiental</text>
             
             <!-- Legend indicators -->
-            <rect x="25" y="165" width="8" height="8" fill="#10b981" rx="2" />
-            <text x="38" y="173" font-family="inherit" font-size="8" fill="#94a3b8">Daño / Gravedad</text>
+            <rect x="25" y="165" width="8" height="8" fill="#008A4B" rx="2" />
+            <text x="38" y="173" font-family="inherit" font-size="8" fill="var(--text-muted)">Daño / Gravedad</text>
             
-            <rect x="120" y="165" width="8" height="8" fill="#f59e0b" rx="2" />
-            <text x="133" y="173" font-family="inherit" font-size="8" fill="#94a3b8">Beneficio Ilícito</text>
+            <rect x="120" y="165" width="8" height="8" fill="#F7941D" rx="2" />
+            <text x="133" y="173" font-family="inherit" font-size="8" fill="var(--text-muted)">Beneficio Ilícito</text>
         </svg>
     `;
     container.innerHTML = svg;
@@ -980,11 +980,7 @@ function printReport() {
     const reportHTML = `
         <div class="print-header">
             <div class="print-logo">
-                <svg viewBox="0 0 100 100" width="64" height="64">
-                    <path d="M50 95 C 20 70, 10 40, 50 5 C 90 40, 80 70, 50 95 Z" fill="#0f5132" />
-                    <circle cx="50" cy="50" r="15" fill="none" stroke="#D4A373" stroke-width="4" />
-                    <circle cx="50" cy="50" r="8" fill="#D4A373" />
-                </svg>
+                <img src="/logo-corpoguajira.png" alt="Logo Corpoguajira" width="76" height="76" style="object-fit: contain;">
             </div>
             <div class="print-title">
                 <h1>Corpoguajira</h1>

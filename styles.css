@@ -4,33 +4,39 @@
 
 /* Color Palette Variables (Multi-Theme System) */
 :root, [data-theme="corpoguajira"] {
-    --bg-dark: #0A5C36;        /* Verde Institucional (Sidebar / Cabecera) */
-    --bg-main: #f8fafc;        /* Fondo claro */
-    --bg-card: #ffffff;        /* Tarjetas blancas */
-    --bg-card-hover: #f1f5f9;  /* Hover en tarjetas */
-    --border-color: #e2e8f0;   /* Borde claro */
-    --bg-input: #f8fafc;       /* Fondo de inputs */
+    --bg-dark: #006837;        /* Verde Institucional Corpoguajira */
+    --bg-main: #f4f7f6;        /* Fondo claro del portal web institucional */
+    --bg-card: #ffffff;        /* Tarjetas blancas limpias */
+    --bg-card-hover: #eef6f1;  /* Hover en tarjetas */
+    --border-color: #dce7e1;   /* Borde claro suave */
+    --bg-input: #ffffff;       /* Fondo de inputs */
     
-    --primary: #0A5C36;        /* Verde Corpoguajira */
-    --primary-hover: #08492b;
-    --primary-soft: rgba(10, 92, 54, 0.1);
+    --primary: #008A4B;        /* Verde Oficial del Dividivi y Letras Corpoguajira */
+    --primary-hover: #006837;
+    --primary-soft: rgba(0, 138, 75, 0.08);
     
-    --accent: #004F9F;         /* Azul Institucional */
-    --accent-hover: #003b77;
+    --accent: #0067B1;         /* Azul Institucional (Arco del cielo) */
+    --accent-hover: #004f8a;
     
-    --text-main: #0F172A;      /* Texto principal oscuro */
-    --text-muted: #64748b;     /* Texto secundario */
-    --text-dark: #0F172A;
+    --corp-blue: #0067B1;      /* Azul cielo */
+    --corp-water: #009FE3;     /* Celeste agua */
+    --corp-orange: #F7941D;    /* Ocre Guajiro */
+    --corp-yellow: #FFD200;    /* Amarillo Sol */
+    --corp-brown: #5C3411;     /* Café Tierra / Dividivi */
+    
+    --text-main: #142820;      /* Texto principal oscuro muy legible */
+    --text-muted: #546860;     /* Texto secundario */
+    --text-dark: #142820;
     --primary-btn-text: #ffffff;
     --accent-btn-text: #ffffff;
     
-    --danger: #ef4444;
-    --warning: #f97316;
-    --info: #3b82f6;
+    --danger: #dc2626;
+    --warning: #F7941D;
+    --info: #009FE3;
     
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.03);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 104, 55, 0.06);
+    --shadow-md: 0 4px 8px -1px rgba(0, 104, 55, 0.08), 0 2px 4px -1px rgba(0, 104, 55, 0.04);
+    --shadow-lg: 0 12px 24px -4px rgba(0, 104, 55, 0.12), 0 4px 8px -2px rgba(0, 104, 55, 0.06);
     
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -124,44 +130,68 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Sidebar Navigation */
 .sidebar {
-    background-color: var(--bg-dark);
-    border-right: 1px solid var(--border-color);
-    padding: 2rem 1.5rem;
+    background: linear-gradient(180deg, #006837 0%, #004825 100%);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1.75rem 1.25rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .sidebar {
+    background: #0f172a;
+}
+
+[data-theme="desierto"] .sidebar {
+    background: #1F1A16;
 }
 
 .brand {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+    gap: 0.85rem;
+    margin-bottom: 2rem;
+    padding: 0.85rem 1rem;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.corpoguajira-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .brand-text h1 {
-    font-size: 1.25rem;
-    color: var(--text-main);
-    font-weight: 700;
+    font-size: 1.15rem;
+    color: #008A4B !important;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
 }
 
 .brand-text span {
-    font-size: 0.75rem;
-    color: var(--primary);
-    font-weight: 500;
+    font-size: 0.72rem;
+    color: #5C3411 !important;
+    font-weight: 600;
     letter-spacing: 0.02em;
-}
-
-.eco-logo {
-    animation: pulseSun 8s ease-in-out infinite alternate;
-}
-
-@keyframes pulseSun {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.05); }
+    display: block;
+    margin-top: 3px;
 }
 
 .nav-menu {
@@ -174,64 +204,54 @@ h1, h2, h3, h4, h5, h6 {
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.85rem;
     padding: 0.85rem 1rem;
     background: none;
     border: none;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.8);
     font-family: 'Outfit', sans-serif;
     font-size: 0.95rem;
     font-weight: 500;
     text-align: left;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
     transition: var(--transition);
     width: 100%;
 }
 
 .nav-item:hover {
-    color: var(--text-main);
-    background-color: rgba(255, 255, 255, 0.03);
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
     transform: translateX(3px);
 }
 
 .nav-item.active {
     color: #ffffff !important;
-    background-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    background: linear-gradient(90deg, #008A4B 0%, #0067B1 100%);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    border-left: 4px solid #FFD200;
+    font-weight: 700;
+}
+
+[data-theme="dark"] .nav-item.active {
+    background: var(--primary);
+    border-left: none;
+    color: #0f172a !important;
+}
+
+[data-theme="desierto"] .nav-item.active {
+    background: var(--primary);
+    border-left: none;
+    color: #1F1A16 !important;
 }
 
 .nav-item.active .nav-icon {
     filter: none;
 }
 
-/* Sidebar Specific LEGIBILITY Overrides (Since sidebar is always dark green/dark slate/dark brown) */
-.sidebar {
-    color: #ffffff;
-}
-
-.sidebar .brand-text h1 {
-    color: #ffffff !important;
-}
-
-.sidebar .nav-item {
-    color: rgba(255, 255, 255, 0.65);
-}
-
-.sidebar .nav-item:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.06);
-}
-
-.sidebar .nav-item.active {
-    color: #ffffff !important;
-    background-color: var(--accent);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .sidebar .sidebar-footer {
-    color: rgba(255, 255, 255, 0.5);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.65);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .sidebar-footer {
@@ -243,8 +263,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .footer-note {
     margin-top: 0.25rem;
-    color: var(--accent);
-    font-weight: 500;
+    color: #FFD200;
+    font-weight: 600;
 }
 
 /* Main Content Layout */
@@ -257,18 +277,32 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Top bar styling */
 .top-bar {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
-    padding: 1.5rem 2.5rem;
+    position: relative;
+    padding: 1.25rem 2.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+/* Institutional decorative wave-gradient line at top of top-bar (Corpoguajira logo waves) */
+.top-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #008A4B 0%, #0067B1 28%, #009FE3 55%, #F7941D 80%, #5C3411 100%);
 }
 
 .header-title h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
+    font-size: 1.45rem;
+    color: var(--primary);
+    margin-bottom: 0.2rem;
 }
 
 .header-title .subtitle {
@@ -279,9 +313,9 @@ h1, h2, h3, h4, h5, h6 {
 .global-params {
     display: flex;
     gap: 1.5rem;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-card-hover);
     border: 1px solid var(--border-color);
-    padding: 0.75rem 1.25rem;
+    padding: 0.65rem 1.15rem;
     border-radius: 12px;
 }
 
@@ -528,7 +562,7 @@ h1, h2, h3, h4, h5, h6 {
 .step-indicator.active span {
     border-color: var(--primary);
     background-color: var(--primary);
-    color: var(--bg-dark);
+    color: #ffffff !important;
 }
 
 .step-indicator.active label {
@@ -637,8 +671,8 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     height: 20px;
     width: 20px;
-    background-color: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
+    background-color: var(--bg-card);
+    border: 1.5px solid var(--border-color);
     border-radius: 4px;
     transition: var(--transition);
 }
@@ -663,11 +697,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .checkbox-container .checkmark:after {
-    left: 7px;
-    top: 3px;
-    width: 5px;
-    height: 10px;
-    border: solid var(--bg-dark);
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 11px;
+    border: solid #ffffff;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
@@ -699,13 +733,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mode-option:hover {
-    border-color: var(--primary-soft);
-    background-color: rgba(30, 41, 59, 0.9);
+    border-color: var(--primary);
+    background-color: var(--bg-card-hover);
 }
 
 .mode-option.active {
     border-color: var(--primary);
-    background-color: rgba(16, 185, 129, 0.05);
+    background-color: var(--primary-soft);
 }
 
 .mode-text strong {
@@ -733,7 +767,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Summary boxes */
 .summary-box {
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-card-hover);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
@@ -823,7 +857,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .factor-item {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.75rem 1rem;
@@ -835,7 +869,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .factor-item:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
 }
 
 .factor-item label {
@@ -847,7 +882,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .factor-item input[type="number"] {
     width: 65px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-input);
     border: 1px solid var(--border-color);
     color: var(--text-main);
     border-radius: 4px;
@@ -875,7 +910,7 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     padding: 2.5rem !important;
     border: 2px solid var(--primary);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(15, 81, 50, 0.02) 100%);
+    background: linear-gradient(135deg, var(--primary-soft) 0%, rgba(0, 103, 177, 0.03) 100%);
 }
 
 .main-fine-display {
@@ -887,7 +922,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .fine-label {
     font-size: 0.75rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--primary);
@@ -898,7 +933,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 800;
     color: var(--text-main);
     margin: 0.5rem 0;
-    text-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+    text-shadow: 0 4px 20px var(--primary-soft);
 }
 
 .alternative-units {
@@ -908,12 +943,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .unit-badge {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-card-hover);
     border: 1px solid var(--border-color);
     border-radius: 50px;
     padding: 0.35rem 0.85rem;
     font-size: 0.8rem;
     font-weight: 600;
+    color: var(--text-main);
 }
 
 .calculation-detail-list {
@@ -926,7 +962,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     justify-content: space-between;
     font-size: 0.9rem;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    border-bottom: 1px dashed var(--border-color);
     padding-bottom: 0.5rem;
 }
 
@@ -965,21 +1001,22 @@ h1, h2, h3, h4, h5, h6 {
 .justification-card h4 {
     margin-bottom: 1rem;
     font-size: 1.05rem;
+    color: var(--primary);
 }
 
 .justification-card textarea {
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--bg-input);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    color: var(--text-muted);
-    font-family: monospace;
+    color: var(--text-main);
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
     font-size: 0.85rem;
     padding: 1rem;
     outline: none;
     resize: vertical;
     margin-bottom: 1rem;
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .step-actions-footer {
@@ -1500,7 +1537,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .ai-analysis-results {
     border: 1px solid var(--primary-soft);
-    background-color: rgba(16, 185, 129, 0.02);
+    background-color: var(--primary-soft);
 }
 
 .ai-var-grid {
@@ -1511,10 +1548,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ai-var-box {
-    background: rgba(0, 0, 0, 0.1);
+    background: var(--bg-card-hover);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    padding: 0.65rem 0.85rem;
     font-size: 0.8rem;
     color: var(--text-main);
 }
